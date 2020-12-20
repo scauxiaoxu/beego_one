@@ -1,0 +1,11 @@
+# project name
+appname = xx
+httpport = 8070
+runmode = dev
+autorender = false
+copyrequestbody = true
+EnableDocs = true
+sqlconn = 
+
+[dev]
+defaultdb = xxxx:@tcp(127.0.0.1:3306)/xxxx?charset=utf8mb4
