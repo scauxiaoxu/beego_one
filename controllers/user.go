@@ -5,6 +5,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/scauxiaoxu/gotool/commonmark"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 // Operations about Users
@@ -97,4 +99,39 @@ func (this *UserController) LoginDo() {
 	this.ServeJSON()
 }
 
-//----------------------------------------------
+// 批量发送消息
+// @router /send/message [post]
+func (this *UserController) SendMessageDo() {
+	content := this.GetString("content")
+	uids := this.GetString("uids")
+
+	if uids == "" {
+		this.Data["json"] = ReturnError(5000, "接收人不能为空")
+		this.ServeJSON()
+		this.StopRun()
+	}
+	if content == "" {
+		this.Data["json"] = ReturnError(5000, "发送内容不能为空")
+		this.ServeJSON()
+		this.StopRun()
+	}
+	messageId, err := models.SendMessageDo(content)
+	if err != nil {
+		this.Data["json"] = ReturnError(5000, "发送失败，请联系客服")
+		this.ServeJSON()
+		this.StopRun()
+	}
+
+	uidSlice := strings.Split(uids, ",")
+	var count int64
+	for _, v := range uidSlice {
+		userId, _ := strconv.Atoi(v)
+		if userId == 0 {
+			continue
+		}
+		models.SendMessageUser(messageId, userId)
+		count++
+	}
+	this.Data["json"] = ReturnSuccess(0, "success", nil, count)
+	this.ServeJSON()
+}

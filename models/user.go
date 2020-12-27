@@ -59,3 +59,11 @@ func IsMobileLogin(mobile, password string) (thisid int, thisname string) {
 	}
 	return user.Id, user.Name
 }
+
+//根据用户ID获取用户信息
+func GetUserInfo(uid int) (User, error) {
+	o := orm.NewOrm()
+	u := User{Id: uid}
+	err := o.Read(&u)
+	return u, err
+}

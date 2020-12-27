@@ -19,6 +19,8 @@ type Video struct {
 	EpisodesUpdateTime int64  `json:"episodes_update_time"`
 	IsEnd              int    `json:"is_end"`
 	IsHot              int    `json:"is_hot"`
+	IsRecommend        int    `json:"is_recommend"`
+	Comment            int    `json:"comment"`
 }
 
 type VideoEpisodes struct {
@@ -173,4 +175,32 @@ func GetVideoEpisodesList(id int) (int64, []map[string]interface{}, error) {
 	}
 
 	return num, ooo, err
+}
+
+// 频道排行榜
+func GetChannelTop(channelId int, limit int) (int64, []Video, error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("video")
+	qs = qs.Filter("channel_id", channelId)
+	qs = qs.Filter("status", 1)
+	qs = qs.OrderBy("-comment")
+	qs = qs.Limit(limit)
+	var videos []Video
+	num, err := qs.Count()
+	_, err = qs.All(&videos)
+	return num, videos, err
+}
+
+// 类型排行榜
+func GetTypeTop(typeId int, limit int) (int64, []Video, error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("video")
+	qs = qs.Filter("type_id", typeId)
+	qs = qs.Filter("status", 1)
+	qs = qs.OrderBy("-comment")
+	qs = qs.Limit(limit)
+	var videos []Video
+	num, err := qs.Count()
+	_, err = qs.All(&videos)
+	return num, videos, err
 }
